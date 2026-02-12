@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conectando ao Atendimento</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         * {
             margin: 0;
@@ -64,6 +65,81 @@
             margin-bottom: 20px;
         }
 
+        /* Seção de verificação */
+        .verification-section {
+            background-color: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .verification-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #2d3436;
+            margin-bottom: 16px;
+        }
+
+        .recaptcha-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 16px;
+            min-height: 78px;
+        }
+
+        .verify-button {
+            background: linear-gradient(135deg, #e0557c 0%, #c44569 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(245, 168, 82, 0.3);
+            width: 100%;
+        }
+
+        .verify-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(245, 168, 82, 0.4);
+        }
+
+        .verify-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .verify-button.success {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+        }
+
+        /* Informações de tentativas */
+        .attempts-info {
+            font-size: 13px;
+            color: #636e72;
+            margin-top: 12px;
+            padding: 8px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .attempts-info.warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        /* Seção de loading */
+        .loading-section {
+            display: none;
+        }
+
+        .loading-section.active {
+            display: block;
+        }
+
         .loading-dots {
             display: flex;
             justify-content: center;
@@ -81,12 +157,11 @@
         }
 
         .headset-icon {
-          margin-top: 10px;
+            margin-top: 10px;
             width: 100%;
             height: 80%;
         }
 
-        /* Ondas de sinal */
         .signal-wave {
             position: absolute;
             width: 60px;
@@ -177,6 +252,89 @@
             margin-bottom: 4px;
         }
 
+        /* Mensagem de erro */
+        .error-message {
+            background-color: #ff7675;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Seção bloqueada */
+        .blocked-section {
+            display: none;
+            background-color: white;
+            border-radius: 12px;
+            padding: 32px 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .blocked-section.active {
+            display: block;
+        }
+
+        .blocked-icon {
+            width: 80px;
+            height: 80px;
+            background: #ff7675;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .blocked-icon::before {
+            content: '✕';
+            color: white;
+            font-size: 48px;
+            font-weight: 300;
+        }
+
+        .blocked-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #2d3436;
+            margin-bottom: 12px;
+        }
+
+        .blocked-message {
+            font-size: 15px;
+            color: #636e72;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        .countdown {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ff7675;
+            margin: 20px 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 0 16px;
@@ -197,6 +355,10 @@
 
             .icon::before {
                 font-size: 32px;
+            }
+
+            .verification-section {
+                padding: 20px 16px;
             }
         }
 
@@ -224,39 +386,455 @@
         <h1>Conectando você ao<br>atendimento humanizado...</h1>
 
         <p class="message">
-            Após algumas tentativas, não conseguimos<br>
-            concluir o seu reconhecimento facial.
+            Se algo não saiu como esperado, podemos te ajudar<br>
+            através do nosso atendimento humanizado.
         </p>
 
-        <p class="message">
-            Por isso, te direcionamos para o<br>
-            atendimento humanizado.
-        </p>
-
-        <!-- <div class="loading-dots">
-            <div class="headset-container">
-                <svg class="headset-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 2H4C2.9 2 2.01 2.9 2.01 4L2 22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="#c44569"/>
-                    <circle cx="8" cy="9" r="1.5" fill="white"/>
-                    <circle cx="12" cy="9" r="1.5" fill="white"/>
-                    <circle cx="16" cy="9" r="1.5" fill="white"/>
-                </svg>
+        <!-- Seção de Verificação -->
+        <div id="verification-section" class="verification-section">
+            <div class="verification-title">Verificação de segurança</div>
+            
+            <div id="error-message" class="error-message"></div>
+            
+            <div class="recaptcha-wrapper">
+                <div class="g-recaptcha" 
+                     data-sitekey="6LeCPmksAAAAALo6oC3Cvh-lt6D9Hginj9sf2h6R"
+                     data-callback="onRecaptchaSuccess"
+                     data-expired-callback="onRecaptchaExpired"
+                     data-error-callback="onRecaptchaError"></div>
             </div>
-            <div class="signal-wave"></div>
-            <div class="signal-wave"></div>
-            <div class="signal-wave"></div>
-        </div> -->
+            
+            <button id="verify-button" class="verify-button" disabled>
+                Verificar e Continuar
+            </button>
 
-        <p class="status"><strong>Clique no botão para iniciar o atendimento</strong></p>
+            <div id="attempts-info" class="attempts-info"></div>
+        </div>
 
-        <div class="warning-box">
-            <div class="warning-icon"></div>
-            <div class="warning-text">
-                <strong>Por favor, não feche esta tela.</strong>
+        <!-- Seção de Loading -->
+        <div id="loading-section" class="loading-section">
+            <div class="loading-dots">
+                <div class="headset-container">
+                    <svg class="headset-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 2H4C2.9 2 2.01 2.9 2.01 4L2 22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z" fill="#c44569"/>
+                        <circle cx="8" cy="9" r="1.5" fill="white"/>
+                        <circle cx="12" cy="9" r="1.5" fill="white"/>
+                        <circle cx="16" cy="9" r="1.5" fill="white"/>
+                    </svg>
+                </div>
+                <div class="signal-wave"></div>
+                <div class="signal-wave"></div>
+                <div class="signal-wave"></div>
+            </div>
+
+            <p class="status"><strong>Aguarde...</strong> Estamos conectando você ao atendimento.</p>
+
+            <div class="warning-box">
+                <div class="warning-icon"></div>
+                <div class="warning-text">
+                    <strong>Não feche esta tela.</strong>
+                    Em instantes a conversa será iniciada.
+                </div>
             </div>
         </div>
+
+        <!-- Seção Bloqueada -->
+        <div id="blocked-section" class="blocked-section">
+            <div class="blocked-icon"></div>
+            <div class="blocked-title">Acesso Temporariamente Bloqueado</div>
+            <p class="blocked-message">
+                Detectamos múltiplas tentativas de verificação falhadas.
+            </p>
+            <div class="countdown" id="countdown-timer">--:--</div>
+            <p class="blocked-message">
+                Por favor, aguarde o tempo indicado acima antes de tentar novamente.
+            </p>
+        </div>
     </div>
+
+    <script>
+        // ============================================
+        // CONFIGURAÇÕES
+        // ============================================
+        const CONFIG = {
+            MAX_ATTEMPTS: 3,           // Máximo de tentativas antes do bloqueio
+            BLOCK_TIME_MINUTES: 30,    // Tempo de bloqueio em minutos
+            STORAGE_KEY: 'webchat_access_control',
+            FINGERPRINT_KEY: 'webchat_fingerprint'
+        };
+
+        // ============================================
+        // VARIÁVEIS GLOBAIS
+        // ============================================
+        let recaptchaToken = null;
+        let browserFingerprint = null;
+        let countdownInterval = null;
+
+        // ============================================
+        // GERAÇÃO DE FINGERPRINT DO NAVEGADOR
+        // ============================================
+        async function generateBrowserFingerprint() {
+            // Combina várias características do navegador para criar um ID único
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.textBaseline = 'top';
+            ctx.font = '14px Arial';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillStyle = '#f60';
+            ctx.fillRect(125, 1, 62, 20);
+            ctx.fillStyle = '#069';
+            ctx.fillText('Browser Fingerprint', 2, 15);
+            ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+            ctx.fillText('Browser Fingerprint', 4, 17);
+            
+            const canvasData = canvas.toDataURL();
+            
+            const fingerprint = {
+                canvas: await hashString(canvasData),
+                userAgent: navigator.userAgent,
+                language: navigator.language,
+                platform: navigator.platform,
+                hardwareConcurrency: navigator.hardwareConcurrency,
+                deviceMemory: navigator.deviceMemory || 'unknown',
+                screenResolution: `${screen.width}x${screen.height}`,
+                screenColorDepth: screen.colorDepth,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                touchSupport: 'ontouchstart' in window
+            };
+
+            const fingerprintString = JSON.stringify(fingerprint);
+            return await hashString(fingerprintString);
+        }
+
+        // Função simples de hash
+        async function hashString(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // ============================================
+        // GERENCIAMENTO DE ACESSO
+        // ============================================
+        function getAccessData() {
+            const data = localStorage.getItem(CONFIG.STORAGE_KEY);
+            if (!data) return null;
+            
+            try {
+                return JSON.parse(data);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function saveAccessData(data) {
+            localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function isBlocked() {
+            const accessData = getAccessData();
+            if (!accessData || !accessData.blockedUntil) return false;
+
+            const now = Date.now();
+            if (now < accessData.blockedUntil) {
+                return true;
+            }
+
+            // Bloqueio expirou
+            resetAccessData();
+            return false;
+        }
+
+        function registerFailedAttempt() {
+            let accessData = getAccessData() || { 
+                attempts: 0, 
+                lastAttempt: Date.now(),
+                fingerprint: browserFingerprint
+            };
+
+            // Verificar se é o mesmo dispositivo
+            if (accessData.fingerprint !== browserFingerprint) {
+                // Dispositivo diferente, resetar contagem
+                accessData = { 
+                    attempts: 0, 
+                    lastAttempt: Date.now(),
+                    fingerprint: browserFingerprint
+                };
+            }
+
+            accessData.attempts += 1;
+            accessData.lastAttempt = Date.now();
+
+            if (accessData.attempts >= CONFIG.MAX_ATTEMPTS) {
+                const blockedUntil = Date.now() + (CONFIG.BLOCK_TIME_MINUTES * 60 * 1000);
+                accessData.blockedUntil = blockedUntil;
+                accessData.blockedAt = new Date().toISOString();
+            }
+
+            saveAccessData(accessData);
+            return accessData.attempts >= CONFIG.MAX_ATTEMPTS;
+        }
+
+        function resetAccessData() {
+            localStorage.removeItem(CONFIG.STORAGE_KEY);
+        }
+
+        function getAttemptsRemaining() {
+            const accessData = getAccessData();
+            if (!accessData) return CONFIG.MAX_ATTEMPTS;
+            return Math.max(0, CONFIG.MAX_ATTEMPTS - accessData.attempts);
+        }
+
+        function updateAttemptsDisplay() {
+            const remaining = getAttemptsRemaining();
+            const attemptsInfo = document.getElementById('attempts-info');
+            
+            if (remaining === CONFIG.MAX_ATTEMPTS) {
+                attemptsInfo.innerHTML = '';
+                attemptsInfo.className = 'attempts-info';
+            } else if (remaining > 0) {
+                attemptsInfo.innerHTML = `⚠️ Tentativas restantes: <strong>${remaining}</strong>`;
+                attemptsInfo.className = 'attempts-info warning';
+            } else {
+                attemptsInfo.innerHTML = '';
+            }
+        }
+
+        // ============================================
+        // GERENCIAMENTO DE BLOQUEIO
+        // ============================================
+        function showBlockedScreen() {
+            document.getElementById('verification-section').classList.add('hidden');
+            document.getElementById('blocked-section').classList.add('active');
+            startCountdown();
+        }
+
+        function startCountdown() {
+            const accessData = getAccessData();
+            if (!accessData || !accessData.blockedUntil) return;
+
+            updateCountdownDisplay();
+            
+            countdownInterval = setInterval(() => {
+                const now = Date.now();
+                if (now >= accessData.blockedUntil) {
+                    clearInterval(countdownInterval);
+                    resetAccessData();
+                    location.reload();
+                } else {
+                    updateCountdownDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateCountdownDisplay() {
+            const accessData = getAccessData();
+            if (!accessData || !accessData.blockedUntil) return;
+
+            const now = Date.now();
+            const timeLeft = Math.max(0, accessData.blockedUntil - now);
+            
+            const minutes = Math.floor(timeLeft / 60000);
+            const seconds = Math.floor((timeLeft % 60000) / 1000);
+            
+            const countdownEl = document.getElementById('countdown-timer');
+            if (countdownEl) {
+                countdownEl.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // ============================================
+        // FUNÇÕES DE UI
+        // ============================================
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        function showLoadingSection() {
+            document.getElementById('verification-section').classList.add('hidden');
+            document.getElementById('loading-section').classList.add('active');
+        }
+
+        // ============================================
+        // CALLBACKS DO RECAPTCHA
+        // ============================================
+        window.onRecaptchaSuccess = function(token) {
+            recaptchaToken = token;
+            document.getElementById('verify-button').disabled = false;
+        };
+
+        window.onRecaptchaExpired = function() {
+            recaptchaToken = null;
+            document.getElementById('verify-button').disabled = true;
+            showError('A verificação expirou. Por favor, tente novamente.');
+        };
+
+        window.onRecaptchaError = function() {
+            recaptchaToken = null;
+            document.getElementById('verify-button').disabled = true;
+            showError('Erro ao carregar o reCAPTCHA. Verifique sua conexão.');
+        };
+
+        // ============================================
+        // VALIDAÇÃO FRONTEND DO RECAPTCHA
+        // ============================================
+        async function validateRecaptcha(token) {
+            // IMPORTANTE: Esta é uma validação básica frontend
+            // Para segurança real, você PRECISA validar no backend
+            
+            // Aqui fazemos verificações básicas
+            if (!token || token.length < 100) {
+                return { success: false, message: 'Token inválido' };
+            }
+
+            // Simula um pequeno delay de validação
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // Verificação básica de padrão do token
+            const tokenPattern = /^[A-Za-z0-9_-]+$/;
+            if (!tokenPattern.test(token)) {
+                return { success: false, message: 'Formato de token inválido' };
+            }
+
+            // Para uma validação real, você precisaria de um backend
+            // Por enquanto, aceitamos tokens que parecem válidos
+            return { success: true };
+        }
+
+        // ============================================
+        // CARREGAMENTO DO WEBCHAT
+        // ============================================
+        function loadWebchatScript() {
+            // Marcar como verificado
+            const verifiedData = {
+                verified: true,
+                timestamp: Date.now(),
+                fingerprint: browserFingerprint
+            };
+            sessionStorage.setItem('webchat_verified', JSON.stringify(verifiedData));
+
+            // Carregar o script do webchat
+            const script = document.createElement('script');
+            script.src = 'https://webchat-script-walletz-liveness.netlify.app/script.js';
+            script.async = true;
+            script.onload = function() {
+                console.log('Webchat carregado com sucesso');
+            };
+            script.onerror = function() {
+                showError('Erro ao carregar o webchat. Tente novamente.');
+                // Voltar para tela de verificação
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+            };
+            document.body.appendChild(script);
+        }
+
+        // ============================================
+        // EVENTO DO BOTÃO DE VERIFICAÇÃO
+        // ============================================
+        document.getElementById('verify-button').addEventListener('click', async function() {
+            if (!recaptchaToken) {
+                showError('Por favor, complete a verificação reCAPTCHA.');
+                return;
+            }
+
+            const button = this;
+            button.disabled = true;
+            button.textContent = 'Verificando...';
+
+            try {
+                // Validar token do reCAPTCHA (frontend)
+                const result = await validateRecaptcha(recaptchaToken);
+
+                if (result.success) {
+                    // Sucesso - resetar tentativas e continuar
+                    resetAccessData();
+                    
+                    button.textContent = '✓ Verificado!';
+                    button.classList.add('success');
+                    
+                    setTimeout(() => {
+                        showLoadingSection();
+                        loadWebchatScript();
+                    }, 1000);
+                } else {
+                    // Falha na verificação
+                    const isNowBlocked = registerFailedAttempt();
+                    
+                    if (isNowBlocked) {
+                        showBlockedScreen();
+                    } else {
+                        showError(result.message || 'Verificação falhou. Tente novamente.');
+                        updateAttemptsDisplay();
+                        button.disabled = false;
+                        button.textContent = 'Verificar e Continuar';
+                        
+                        // Reset do reCAPTCHA
+                        if (typeof grecaptcha !== 'undefined') {
+                            grecaptcha.reset();
+                            recaptchaToken = null;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Erro na verificação:', error);
+                showError('Ocorreu um erro. Por favor, tente novamente.');
+                button.disabled = false;
+                button.textContent = 'Verificar e Continuar';
+            }
+        });
+
+        // ============================================
+        // INICIALIZAÇÃO
+        // ============================================
+        window.addEventListener('DOMContentLoaded', async function() {
+            // Gerar fingerprint do navegador
+            browserFingerprint = await generateBrowserFingerprint();
+            
+            // Salvar fingerprint para referência
+            localStorage.setItem(CONFIG.FINGERPRINT_KEY, browserFingerprint);
+
+            // Verificar se já está verificado nesta sessão
+            const verified = sessionStorage.getItem('webchat_verified');
+            if (verified) {
+                try {
+                    const verifiedData = JSON.parse(verified);
+                    // Se verificado há menos de 1 hora, pular verificação
+                    if (Date.now() - verifiedData.timestamp < 3600000) {
+                        showLoadingSection();
+                        loadWebchatScript();
+                        return;
+                    }
+                } catch (e) {
+                    // Ignorar erro e continuar com verificação
+                }
+            }
+
+            // Verificar se está bloqueado
+            if (isBlocked()) {
+                showBlockedScreen();
+                return;
+            }
+
+            // Atualizar display de tentativas
+            updateAttemptsDisplay();
+        });
+
+        // Limpar interval ao sair da página
+        window.addEventListener('beforeunload', function() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+        });
+    </script>
 </body>
 </html>
-
-<script src="https://webchat-script-walletz-liveness.netlify.app/script.js"></script>
